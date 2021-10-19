@@ -419,26 +419,26 @@ class CandidateService {
                 json.category = data[i].category;
                 json.cv_source = data[i].cv_source;
                 json.bonus = data[i].bonus;
-                json.finalFee = data[1].finalFee;
+                json.finalFee = data[i].finalFee;
                 json.creditPercentage = data[i].creditPercentage;
                 json.case_stage = data[i].case_stage;
                 json.createdAt = data[i].createdAt;
                 json.rec_details = {
-                    id: data[1].r_id,
+                    id: data[i].r_id,
                     first_name: data[i].r_first_name,
                     last_name: data[i].r_last_name,
                     email: data[i].r_email,
                     userImg: data[i].r_userImg,
                 }
                 json.am_details = {
-                    id: data[1].a_id,
+                    id: data[i].a_id,
                     first_name: data[i].a_first_name,
                     last_name: data[i].a_last_name,
                     email: data[i].a_email,
                     userImg: data[i].a_userImg,
                 }
                 json.job_detail = {
-                    id: data[1].j_id,
+                    id: data[i].j_id,
                     job_id: data[i].job_id,
                     com_id: data[i].com_id,
                     company: data[i].company,
@@ -507,37 +507,16 @@ class CandidateService {
         return whereCnd;
     }
 
-    // async execFilterQuery(payload, qType) {
-    //     try {
-    //         const whereCnd = await this.getCondition(payload);
-    //         let result;
-    //         if(qType == 'C.am_id' || qType == 'C.req_id'){
-    //             result = await sequelize.query(`SELECT count(*) as count, A.first_name, A.last_name, A.email, A.userImg FROM candidates C JOIN company_jobs J on C.jobId = J.job_id JOIN dk_user U on C.req_id = U.id JOIN dk_user as A on C.am_id = A.id ${whereCnd}`, {type: Sequelize.QueryTypes.SELECT});
-    //         }else{
-    //             result = await sequelize.query(`SELECT count(*) as count FROM candidates C JOIN company_jobs J on C.jobId = J.job_id JOIN dk_user U on C.req_id = U.id JOIN dk_user as A on C.am_id = A.id ${whereCnd}`, {type: Sequelize.QueryTypes.SELECT});
-    //         }
-    //         return result;
-    //     } catch (error) {
-    //         return 0
-    //     }
-    // }
-
     async execSerachQuery(payload, qType) {
         try {
             const whereCnd = await this.getCondition(payload);
             let result;
-
-            console.log(qType)
             if (qType == 'C.am_id' || qType == 'C.req_id') {
-
                 if (qType == 'C.am_id') {
                     result = await sequelize.query(`SELECT count(${qType}) as count, ${qType}, A.first_name, A.last_name, A.email, A.userImg FROM candidates C JOIN company_jobs J on C.jobId = J.job_id JOIN dk_user U on C.am_id = U.id JOIN dk_user as A on C.am_id = A.id ${whereCnd} GROUP BY ${qType}`, { type: Sequelize.QueryTypes.SELECT });
                 } else {
                     result = await sequelize.query(`SELECT count(${qType}) as count, ${qType}, A.first_name, A.last_name, A.email, A.userImg FROM candidates C JOIN company_jobs J on C.jobId = J.job_id JOIN dk_user U on C.req_id = U.id JOIN dk_user as A on C.req_id = A.id ${whereCnd} GROUP BY ${qType}`, { type: Sequelize.QueryTypes.SELECT });
                 }
-
-
-
             } else {
                 result = await sequelize.query(`SELECT count(${qType}) as count, ${qType} FROM candidates C JOIN company_jobs J on C.jobId = J.job_id JOIN dk_user U on C.req_id = U.id JOIN dk_user as A on C.am_id = A.id ${whereCnd} GROUP BY ${qType}`, { type: Sequelize.QueryTypes.SELECT });
             }
@@ -550,6 +529,9 @@ class CandidateService {
     async update(req, res) {
         try {
             const payload = req.body;
+            console.log(payload)
+            return false;
+
             await candidateModel.update(payload, { where: { id: req.params.id } });
             const result = await candidateModel.findOne({ where: { id: req.params.id } });
             return res.status(200).json({ status: true, message: 'Updated', result });
