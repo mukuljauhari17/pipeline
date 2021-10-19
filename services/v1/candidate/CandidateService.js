@@ -528,15 +528,73 @@ class CandidateService {
 
     async update(req, res) {
         try {
-            const payload = req.body;
-            console.log(payload)
-            return false;
-
-            await candidateModel.update(payload, { where: { id: req.params.id } });
-            const result = await candidateModel.findOne({ where: { id: req.params.id } });
-            return res.status(200).json({ status: true, message: 'Updated', result });
+            let toSet = {};
+            for (var param in req.body) {
+                toSet[req.body.key] = req.body.value;
+            }
+            await candidateModel.update(toSet, { where: { id: req.params.id } });
+            // const result = await candidateModel.findOne({ where: { id: req.params.id } });
+            const result = await sequelize.query(`SELECT C.id, C.canId, C.flag_type, C.req_id, C.am_id, C.jobId, C.name, C.commentCount, C.caseStatus, C.case_progress, C.case_stage, C.category, C.cv_source, C.bonus, C.finalFee, C.creditPercentage, C.createdAt, U.id as r_id, U.first_name as r_first_name, U.last_name as r_last_name, U.email as r_email, U.userImg as r_userImg, A.id as a_id, A.first_name as a_first_name, A.last_name as a_last_name, A.email as a_email, A.userImg as a_userImg, J.id as j_id, J.job_id, J.com_id, J.company, J.project, J.role, J.lang, J.name as j_name, J.no_of_jobs, J.fee FROM candidates C JOIN company_jobs J on C.jobId = J.job_id JOIN dk_user U on C.req_id = U.id JOIN dk_user as A on C.am_id = A.id WHERE C.id = ${req.params.id}`, { type: Sequelize.QueryTypes.SELECT });
+            const response = await this.makeOneJson(result);
+            return res.status(200).json({ status: true, message: 'Updated', response });
         } catch (error) {
             return res.status(500).json({ status: false, message: error });
+        }
+    }
+
+    async makeOneJson(data) {
+        try {
+            let json = {};
+            for (let i = 0; i < data.length; i++) {
+                json.id = data[i].id;
+                json.canId = data[i].canId;
+                json.flag_type = data[i].flag_type;
+                json.req_id = data[i].req_id;
+                json.am_id = data[i].am_id;
+                json.jobId = data[i].jobId;
+                json.name = data[i].name;
+                json.commentCount = data[i].commentCount;
+                json.caseStatus = data[i].caseStatus;
+                json.case_progress = data[i].case_progress;
+                json.case_stage = data[i].case_stage;
+                json.category = data[i].category;
+                json.cv_source = data[i].cv_source;
+                json.bonus = data[i].bonus;
+                json.finalFee = data[i].finalFee;
+                json.creditPercentage = data[i].creditPercentage;
+                json.case_stage = data[i].case_stage;
+                json.createdAt = data[i].createdAt;
+                json.rec_details = {
+                    id: data[i].r_id,
+                    first_name: data[i].r_first_name,
+                    last_name: data[i].r_last_name,
+                    email: data[i].r_email,
+                    userImg: data[i].r_userImg,
+                }
+                json.am_details = {
+                    id: data[i].a_id,
+                    first_name: data[i].a_first_name,
+                    last_name: data[i].a_last_name,
+                    email: data[i].a_email,
+                    userImg: data[i].a_userImg,
+                }
+                json.job_detail = {
+                    id: data[i].j_id,
+                    job_id: data[i].job_id,
+                    com_id: data[i].com_id,
+                    company: data[i].company,
+                    project: data[i].project,
+                    role: data[i].role,
+                    lang: data[i].lang,
+                    name: data[i].j_name,
+                    no_of_jobs: data[i].no_of_jobs,
+                    fee: data[i].fee
+                }
+            }
+            return json;
+        } catch (error) {
+            console.log(error)
+            return array;
         }
     }
 }

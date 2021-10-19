@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../../database/connection');
 
-const backendValue = sequelize.define('backend_value', {
+module.exports = sequelize.define('backend_value', {
     id: {
         type: Sequelize.BIGINT,
         allowNull: false,
@@ -52,6 +52,6 @@ const backendValue = sequelize.define('backend_value', {
         type: Sequelize.STRING(50),
         values: [0, 1]
     }
+}, {
+    freezeTableName: true
 });
-
-module.exports = backendValue;
