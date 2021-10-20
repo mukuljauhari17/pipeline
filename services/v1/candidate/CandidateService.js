@@ -130,7 +130,7 @@ class CandidateService {
                     for (let i = 0; i < result.length; i++) {
                         let json = {};
                         json.am_id = result[i].am_id;
-                        json.count = result[0].count;
+                        json.count = result[i].count;
                         json.am_detail = {
                             "first_name": result[i].first_name,
                             "last_name": result[i].last_name,
